@@ -8,7 +8,7 @@
 import scrapy
 
 
-class TutorialItem(scrapy.Item):
+class CorpusItem(scrapy.Item):
 	# define the fields for your item here like:
 	content = scrapy.Field()
 	title = scrapy.Field()

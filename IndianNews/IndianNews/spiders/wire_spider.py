@@ -9,7 +9,7 @@ from scrapy.spiders import Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapy.utils.response import get_base_url
 
-from IndianNews.items import TutorialItem
+from ..items import CorpusItem
 from IndianNews.utils import *
 
 class wireSpider(CrawlSpider):
@@ -47,7 +47,7 @@ class wireSpider(CrawlSpider):
 		tag = get_tag(response,path=".//div[3]/div[2]/div[1]/div/span[1]/a/div/text()")
 		share = get_share(response,path ='.//*[@id="social_count_box"]')
 
-		tab = TutorialItem()
+		tab = CorpusItem()
 
 		tab['content'] = content
 		tab['title'] = title
