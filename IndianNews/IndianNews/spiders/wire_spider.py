@@ -13,7 +13,7 @@ from IndianNews.items import TutorialItem
 from IndianNews.utils import *
 
 class wireSpider(CrawlSpider):
-	name = "the_wire"
+	name = "thewire"
 
 	start_urls = [
 		"https://thewire.in/category/politics/all",
