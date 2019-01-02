@@ -13,11 +13,10 @@ class CorpusItem(scrapy.Item):
 	content = scrapy.Field()
 	title = scrapy.Field()
 	author = scrapy.Field()
-	comment = scrapy.Field()
 	tag = scrapy.Field()
 	date = scrapy.Field()
 	url = scrapy.Field()
-	share = scrapy.Field()
+
 
 
 

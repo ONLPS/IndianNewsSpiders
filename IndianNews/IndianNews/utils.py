@@ -25,16 +25,7 @@ def get_author(response,path):
 	return author
 
 @error_handling
-def get_comment(response,path):
-	comment = response.xpath(path).extract()
-	return comment
-
-@error_handling
 def get_tag(response,path):
 	tag = response.xpath(path).extract()
 	return tag
 
-@error_handling
-def get_share(self,response):
-	share = response.xpath(path).extract()
-	return share

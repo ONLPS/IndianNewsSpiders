@@ -10,14 +10,15 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.utils.response import get_base_url
 
 from ..items import CorpusItem
-from IndianNews.utils import *
+from ..utils import *
+
 
 class wireSpider(CrawlSpider):
 	name = "thewire"
 
 	start_urls = [
-		"https://thewire.in/category/politics/all",
-	]
+		"https://thewire.in/category/politics/all"
+		]
 
 	def parse(self, response):
 		hxs = scrapy.Selector(response)
@@ -43,20 +44,16 @@ class wireSpider(CrawlSpider):
 		content = get_content(response, path =".//div[3]/div[2]/div[2]/p/text()")
 		author = get_author(response,path="//div[3]/div[1]/div[1]/div/div[2]/a/text()")
 		date = self.get_publish_date(response)
-		comment = get_comment(response,path=".//nav/ul/li[1]/a/span[1]/text()")
 		tag = get_tag(response,path=".//div[3]/div[2]/div[1]/div/span[1]/a/div/text()")
-		share = get_share(response,path ='.//*[@id="social_count_box"]')
-
+		
 		tab = CorpusItem()
 
 		tab['content'] = content
 		tab['title'] = title
 		tab['author'] = author
-		tab['comment'] = comment
 		tab['tag'] = tag
 		tab['date'] = date
 		tab['url'] = url
-		tab['share'] = share
 		yield tab
 
 		
