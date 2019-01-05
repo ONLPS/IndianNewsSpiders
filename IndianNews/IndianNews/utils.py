@@ -27,5 +27,7 @@ def get_author(response,path):
 @error_handling
 def get_tag(response,path):
 	tag = response.xpath(path).extract()
+	if len(tag) == 0:
+		tag = []
 	return tag
 

@@ -1,9 +1,9 @@
 import scrapy
 import json
 import re
-import datetime
 import time
 from ast import literal_eval
+from dateutil.parser import parse
 
 from scrapy.spiders import CrawlSpider
 from scrapy.spiders import Rule
@@ -39,10 +39,11 @@ class ScrollSpider(CrawlSpider):
 		start_index = date.find('t=')
 		end_index = date.find('>')
 		date = date[start_index+3:end_index-1]
+		date = parse(date)
 		return date
 	
 	def extract_data(self, response):
-		url = get_base_url(response)
+		url = "https://scroll.in/"
 		date = self.get_date(response)
 		content = get_content(response, path = './/p/text()')
 		content += get_content(response, path ='//*[@id="article-contents"]/ol/li/text()' )
