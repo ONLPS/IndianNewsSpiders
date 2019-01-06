@@ -36,8 +36,8 @@ class DailyOSpider(CrawlSpider):
 
     @error_handler
     def get_date(self, response):
-        date = response.xpath(
-            '//*[@id="middle_container"]/div[2]/div[1]/span[2]/a/text()').extract()[0]
+        date = response.xpath('/html/body/div[1]/meta[6]/@content').extract_first()
+            #'//*[@id="middle_container"]/div[2]/div[1]/span[2]/a/text()').extract()[0]
         date = parse(date)
         return date
 
