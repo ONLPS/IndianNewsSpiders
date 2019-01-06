@@ -17,7 +17,7 @@ class QuintSpider(CrawlSpider):
 	name = "quint"
 	#allow_domain=['catchnews.com']
 	urls = "https://www.thequint.com/news/politics/{}"
-	start_page = 1
+	start_page = 60
 	start_urls = [urls.format(str(start_page))]
 
 	def parse(self,response):
@@ -28,7 +28,7 @@ class QuintSpider(CrawlSpider):
 				link = response.urljoin(link)
 				yield scrapy.Request(link, callback=self.extract_data)
 
-		if len(all_links) > 0 and self.start_page< 200:
+		if len(all_links) > 0 and self.start_page< 61:
 			self.start_page += 1
 			yield scrapy.Request(self.urls.format(str(self.start_page)), callback =self.parse)
 			time.sleep(2)
@@ -58,9 +58,8 @@ class QuintSpider(CrawlSpider):
 		author = get_author(response, path= './/div/div[3]/div/div/section[2]/article[1]/div[4]/div[1]/div[2]/div[1]/div[2]/a/text()')
 		author += get_author(response,path='.//div/div[3]/div/section/section[2]/article[1]/div[3]/div[1]/div[1]/div[2]/div[1]/span/a/text()')
 		tag = self.find_tag(response)
-	
 
-						
+		print('\n\n-----------------{}--------------------\n\n'.format(title))			
 		tab = CorpusItem()
 		tab['content'] = content
 		tab['title'] = title
@@ -68,4 +67,4 @@ class QuintSpider(CrawlSpider):
 		tab['tag'] = tag
 		tab['date'] = date
 		tab['url'] = url
-		yield tab
+		#yield tab
