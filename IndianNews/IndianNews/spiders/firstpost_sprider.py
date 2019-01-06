@@ -14,18 +14,17 @@ from ..items import CorpusItem
 from ..utils import *
 
 
-class DailyOSpider(CrawlSpider):
-    name = "dailyo"
-    allow_domain = ['dailyo.in']
+class FirstpostSpider(CrawlSpider):
+    name = "firstpost"
+    allow_domain = ['firstpost.in']
 
-    urls = "https://www.dailyo.in/politics/?page={}"
+    urls = "https://www.firstpost.com/category/politics/page/{}"
     start_page = 1
     start_urls = [urls.format(str(start_page))]
 
     def parse(self, response):
-        all_links = response.xpath('.//div/div[2]/div[2]/h2/a/@href').extract()
-        for link in all_links[:3]:
-            link = "https://www.dailyo.in"+link
+        all_links = response.xpath('.//*[@class="articles-list"]/li/a/@href').extract()
+        for link in all_links:
             yield scrapy.Request(url=link, callback=self.extract_data)
         time.sleep(2)
 
@@ -36,7 +35,7 @@ class DailyOSpider(CrawlSpider):
 
     @error_handler
     def get_date(self, response):
-        date = response.xpath('/html/body/div[1]/meta[6]/@content').extract_first()
+        date = response.xpath('.//*[@class="article-date"]/text()').extract_first()
             #'//*[@id="middle_container"]/div[2]/div[1]/span[2]/a/text()').extract()[0]
         date = parse(date)
         return date
@@ -45,13 +44,13 @@ class DailyOSpider(CrawlSpider):
         url = get_base_url(response)
         date = self.get_date(response)
         content = get_content(
-            response, path='//*[@id="forElectionID"]/p/text()')
+            response, path='.//*[@class="article-full-content"]/p/text()')
         title = get_title(
-            response, path='//*[@id="header-story"]/div[2]/h1/text()')
+            response, path='.//*[@class="page-title article-title"]/text()')
         author = get_author(
-            response, path='//*[@id="middle_container"]/div[2]/div[2]/a/div/text()')
-        tag = get_tag(response, '//*[@id="taglist"]/a/text()')
-        tag = [t.replace('\n', '').replace("#", "") for t in tag]
+            response, path='.//*[@class="article-by"]/text()')
+
+        tag = get_tag(response, './/*[@class="article-tags hidden-xs hidden-sm"]/a/text()')
 
         tab = CorpusItem()
         tab['content'] = content
@@ -60,4 +59,4 @@ class DailyOSpider(CrawlSpider):
         tab['tag'] = tag
         tab['date'] = date
         tab['url'] = url
-        #yield tab
+        yield tab
