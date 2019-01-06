@@ -28,7 +28,7 @@ class wireSpider(CrawlSpider):
 			link= 'https://thewire.in'+ link
 			yield scrapy.Request(url=link, callback=self.extract_data)
 
-	@error_handling
+	@error_handler
 	def get_publish_date(self,response):
 		x = (response.xpath("/html/body/script[1]/text()").extract())[0]
 		data =x[0:-1]
