@@ -13,7 +13,7 @@ from scrapy.utils.response import get_base_url
 from ..items import CorpusItem
 from ..utils import *
 
-class QuintSpider(CrawlSpider):
+class OpindiaSpider(CrawlSpider):
 	name = "opindia"
 	#allow_domain=['catchnews.com']
 	urls = "https://www.opindia.com/category/politics/"
