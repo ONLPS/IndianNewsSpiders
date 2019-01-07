@@ -15,41 +15,41 @@ from ..utils import *
 
 class CatchSpider(CrawlSpider):
 	name = "catch"
-	#allow_domain=['catchnews.com']
 
 	urls = "http://www.catchnews.com/politics-news/"
 	start_page = 1
 	start_urls = [urls.format(str(start_page))]
 	
 	def parse(self,response):
-		all_links = response.xpath('.//div[1]/div/div[2]/div[1]/div[1]/ul/li/div/span[1]/a/@href').extract()
-		all_links +=  response.xpath('.//div[1]/div/div[2]/div[1]/div[3]/ul/li/div/div[2]/span[1]/a/@href').extract()
+		all_links = response.xpath('.//*[@class="category_div"]/ul/li/div/a/@href').extract()
+		all_links += response.xpath('.//*[@class="cate_div2"]/ul/li/div/div/a[1]/@href').extract()
+
 		for link in all_links:
 			yield scrapy.Request(url=link, callback=self.extract_data)
 		time.sleep(2)
 			
 		
-		next_page = response.xpath('.//div[1]/div/div[2]/div[2]/div/span[3]/a/@href').extract_first()
-		if next_page is not None:
-			print("\n-------------next page-----------\n",next_page)
+		next_page = response.xpath('.//*[@class="nextAbled"]/a/@href').extract_first()
+		if next_page is not None and self.start_page < 26:
+			self.start_page+=1
 			yield scrapy.Request(next_page, callback=self.parse)
+			time.sleep(2)
 
 	def get_date(self, response):
 		date = response.xpath('.//div[1]/div[2]/div[1]/div[2]/span[2]/text()').extract_first()
 		date = date.replace('| Updated on: ','')
-		print(date.strip())
 		date = parse(date.strip())
 		return date
 	
 	def extract_data(self, response):
-		url = get_base_url(response)
+		url =  response._url
 		date = self.get_date(response)
-		content = get_content(response, path = './/div[1]/div[2]/div[1]/div[6]/span/div/p/text()')
-		content +=get_content(response,path = './/div[1]/div[2]/div[1]/div[6]/span/p/text()')
-		content += get_content(response,path = './/div[1]/div[2]/div[1]/div[6]/span/div[1]/p/span/text()')
+		content = get_content(response, path ='.//*[@class="quick_pill_news_description"]/p/text()')
+		content += get_content(response, path = './/*[@class="start-text dropCap fontAdelle"]/p/text()')
+		content += get_content(response,path = './/*[@class="start-text dropCap fontAdelle"]/p/span/text()')
 		title = get_title(response, path ='/html/head/title/text()')
-		author = get_author(response, path= './/div[1]/div[2]/div[1]/div[2]/span[1]/a/text()')
-		tag = get_tag(response, './/div[1]/div[2]/div[3]/a/text()')
+		author = get_author(response, path= './/*[@class="artical_news_name textuc"]/a/text()')
+		tag = get_tag(response, './/*[@class="ins_keyword margin_top40"]/a/text()')
 		tag =[_ for _ in [t.replace('\n','').strip() for t in tag] if _ not in ['',' ']]
 
 						
