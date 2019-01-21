@@ -15,10 +15,11 @@ class CatchSpider(CrawlSpider):
     def parse(self, response):
 
         all_links = response.xpath(
-            './/*[@class="category_div"]/ul/li/div/a/@href').extract()
+            './/div[@class="w300 martop20mbl wm cath310"]/a/@href').extract()
         all_links += response.xpath(
-            './/*[@class="cate_div2"]/ul/li/div/div/a[1]/@href').extract()
+            './/span[@class="big-block-div ch66 oh"]/a/@href').extract()
 
+        print(len(all_links))
         for link in all_links:
             yield scrapy.Request(url=link, callback=self.extract_data)
         time.sleep(2)
@@ -26,7 +27,7 @@ class CatchSpider(CrawlSpider):
         next_page = response.xpath(
             './/*[@class="nextAbled"]/a/@href').extract_first()
 
-        if next_page is not None and self.start_page < 220:
+        if next_page is not None and self.start_page < 10:
             self.start_page += 1
             yield scrapy.Request(next_page, callback=self.parse)
             time.sleep(2)
