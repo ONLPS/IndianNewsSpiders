@@ -15,7 +15,6 @@ from ..utils import *
 
 class QuintSpider(CrawlSpider):
 	name = "quint"
-	#allow_domain=['catchnews.com']
 	urls = "https://www.thequint.com/news/politics/{}"
 	start_page = 1
 	start_urls = [urls.format(str(start_page))]
@@ -50,7 +49,6 @@ class QuintSpider(CrawlSpider):
 		tag = get_tag(response, path='.//meta[@name="keywords"]/@content')
 		tag = tag[0].split(',')
 
-		print('\n\n-----------------{}--------------------\n\n'.format(title))			
 		tab = CorpusItem()
 		tab['content'] = content
 		tab['title'] = title
