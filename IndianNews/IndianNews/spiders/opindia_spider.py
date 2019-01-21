@@ -21,14 +21,15 @@ class OpindiaSpider(CrawlSpider):
 	start_urls = [urls]
 
 	def parse(self,response):
-		all_links = response.xpath('.//div[3]/div/div/div[1]/div/div/div[2]/h3/a/@href').extract()
+		all_links = response.xpath('.//h3[@class="entry-title td-module-title"]/a/@href').extract()
 		for link in all_links:
 			yield scrapy.Request(link, callback= self.extract_data)
 
 		next_page_link = response.xpath('.//*[@class="page-nav td-pb-padding-side"]/a/@href')[-1].extract()
-		if next_page_link is not None and self.pages < 10:
+		if next_page_link is not None:
 			self.pages+=1
 			yield scrapy.Request(next_page_link, callback =self.parse)
+			time.sleep(5)
 	
 
 
@@ -54,7 +55,7 @@ class OpindiaSpider(CrawlSpider):
 
 	
 	def extract_data(self, response):
-		url = "https://www.opindia.com/"
+		url = response._url
 		date = self.get_date(response)
 		content = self.get_content(response)
 		title = get_title(response, path ='.//div/div/div/div[2]/div/h1/text()')
