@@ -1,8 +1,9 @@
 import scrapy
 import json
 import re
-import datetime
+import time
 from ast import literal_eval
+from dateutil.parser import parse
 
 from scrapy.spiders import CrawlSpider
 from scrapy.spiders import Rule
@@ -15,19 +16,29 @@ from ..utils import *
 
 class wireSpider(CrawlSpider):
 	name = "thewire"
+	urls ="https://thewire.in/wp-json/thewire/v2/posts/home/recent-stories?per_page=20&page={}"
+	page_number = 1
+	start_urls = [urls.format(page_number)]
+	
+	def url_gen(self, d):
+		base_url="https://thewire.in/"
+		post_name = d.get("post_name")
+		category = d.get("prime_category")[0].get("slug")
 
-	start_urls = [
-		"https://thewire.in/category/politics/all"
-		]
+		if category in ["goverment","law","rights","communalism"]:
+			return base_url+category+"/"+post_name
 
 	def parse(self, response):
-		hxs = scrapy.Selector(response)
-		# extract all links from page
-		all_links = hxs.xpath('//*[@id="category-container"]/div[2]/div[3]/div[1]/div/div[2]/div/div/div[2]/div/div[2]/a/@href').extract()
+		data = json.loads(response.body_as_unicode())
+		all_links = [self.url_gen(d) for d in data if self.url_gen(d) is not None]
+		
 		for link in all_links:
-			link= 'https://thewire.in'+ link
 			yield scrapy.Request(url=link, callback=self.extract_data)
 
+		if self.page_number < 10:
+			self.page_number += 1
+			yield scrapy.Request(self.urls.format(self.page_number), callback = self.parse)
+			
 	@error_handler
 	def get_publish_date(self,response):
 		x = (response.xpath("/html/body/script[1]/text()").extract())[0]
@@ -35,16 +46,18 @@ class wireSpider(CrawlSpider):
 		data = data.replace('window.__data=','')
 		data = json.loads(data)
 		date = data['postDetails']['postDetails'][0]['post_date']
+		date = parse(date)
 		return date
 
 
 	def extract_data(self,response):
 		url = get_base_url(response)
-		title = get_title(response,path=".//div[1]/div/h1/span/text()")
-		content = get_content(response, path =".//div[3]/div[2]/div[2]/p/text()")
-		author = get_author(response,path="//div[3]/div[1]/div[1]/div/div[2]/a/text()")
+		title = get_title(response,path='.//h1[@class="title"]/span/text()')
+		content = get_content(response, path ='.//*[@class="col s12 m10 postComplete__description"]/p/text()')
+		content += get_content(response, path ='.//*[@class="col s12 m10 postComplete__description"]/p/span/text()')
+		author = get_author(response,path='.//*[@class="author__name"]/a/text()')
 		date = self.get_publish_date(response)
-		tag = get_tag(response,path=".//div[3]/div[2]/div[1]/div/span[1]/a/div/text()")
+		tag = get_tag(response,path='.//span[@class="data-tag"]/a/@title')
 		
 		tab = CorpusItem()
 
@@ -55,13 +68,3 @@ class wireSpider(CrawlSpider):
 		tab['date'] = date
 		tab['url'] = url
 		yield tab
-
-		
-
-
-
-
-
-
-
-		
