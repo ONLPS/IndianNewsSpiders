@@ -26,9 +26,8 @@ class FirstpostSpider(CrawlSpider):
         all_links = response.xpath('.//*[@class="articles-list"]/li/a/@href').extract()
         for link in all_links:
             yield scrapy.Request(url=link, callback=self.extract_data)
-        time.sleep(2)
 
-        if len(all_links) > 0 and self.start_page < 5:
+        if len(all_links) > 0 and self.start_page < 780:
             self.start_page += 1
             yield scrapy.Request(self.urls.format(str(self.start_page)), callback=self.parse)
             time.sleep(2)
@@ -41,7 +40,7 @@ class FirstpostSpider(CrawlSpider):
         return date
 
     def extract_data(self, response):
-        url = get_base_url(response)
+        url = response._url
         date = self.get_date(response)
         content = get_content(
             response, path='.//*[@class="article-full-content"]/p/text()')
