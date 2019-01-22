@@ -24,34 +24,30 @@ class ScrollSpider(CrawlSpider):
 
     def parse(self, response):
         all_links = response.xpath(
-            '//*[@id="feed"]/div/div[1]/ul/li/link/@href').extract()
+            './/li[@class="row-story"]/link/@href').extract()
 
         for link in all_links:
             if 'video' not in link:
                 yield scrapy.Request(url=link, callback=self.extract_data)
-                time.sleep(2)
 
-        if len(all_links) > 0:
+        if len(all_links) > 0 and self.start_page < 15:
             self.start_page += 1
             yield scrapy.Request(self.urls.format(str(self.start_page)), callback=self.parse)
 
     def get_date(self, response):
-        date = response.xpath('/html/head/meta[33]').extract()[0]
-        start_index = date.find('t=')
-        end_index = date.find('>')
-        date = date[start_index+3:end_index-1]
+        date = response.xpath('.//meta[@name="dcterms.created"]/@content').extract()[0]
         date = parse(date)
         return date
 
     def extract_data(self, response):
-        url = get_base_url(response)
+        url = response._url
         date = self.get_date(response)
-        content = get_content(response, path='.//p/text()')
-        content += get_content(response,
-                               path='//*[@id="article-contents"]/ol/li/text()')
+        content = get_content(response, path='.//div[@id="article-contents"]/p/text()')
+        content += get_content(response, path='.//div[@id="article-contents"]/ol/li/text()')
+        content += get_content(response, path = './/div[@itemprop="articleBody"]/p/text()')
         title = get_title(response, path='.//header/h1/text()')
-        author = get_author(response, path='.//div/aside[1]/address/a/text()')
-        tag = get_tag(response, './/div/section/ul/li/a/text()')
+        author = get_author(response, path='.//div/address/a/text()')
+        tag = get_tag(response, './/a[@class="tag-menu"]/text()')
         tag = [t.replace('\n', '').strip() for t in tag]
 
         tab = CorpusItem()
